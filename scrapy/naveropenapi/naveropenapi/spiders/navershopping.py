@@ -10,17 +10,17 @@ class NavershoppingSpider(scrapy.Spider):
 
 
     def start_requests(self):
-        startUrls = ['https://openapi.naver.com/v1/search/shop.json?query=']
+        startUrl = 'https://openapi.naver.com/v1/search/shop.json?query='
         clientId = 'cl7k_aEwJnbYG_dh0KGf'
         clientSecret = 'v0fWt6JW2F'
         headerParams = {'X-Naver-Client-Id':clientId, 'X-Naver-Client-Secret':clientSecret}
         query='iphone'
-        for url in startUrls:
-            yield scrapy.Request(url=url+query, headers=headerParams, callback=self.parse, meta={})
+        for idx in range(10):
+            yield scrapy.Request(url=startUrl+query+'&display=100&start='+str(idx*100+1), headers=headerParams, callback=self.parse, meta={})
 
     def parse(self, response):
         print(response.text)
-        data = json.loads(response) # 한글처리
+        data = json.loads(response.text) # 한글처리
         for item in data['items']:
             itemObj = NaveropenapiItem()
             itemObj['title'] = item['title']
