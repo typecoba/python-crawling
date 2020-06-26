@@ -10,6 +10,8 @@ import scrapy
 
 class CyclubPostItem(scrapy.Item):
     # define the fields for your item here like:
+    columns = ['no','category','title','writer','date','view','image_names','image_urls','file_names','file_urls','article','comments']
+
     no = scrapy.Field()
     category = scrapy.Field()
     title = scrapy.Field()
@@ -23,9 +25,7 @@ class CyclubPostItem(scrapy.Item):
     file_urls = scrapy.Field()
     file_names = scrapy.Field()
     article = scrapy.Field()
-
-class CyclubCommentItem(scrapy.Item):
     comments = scrapy.Field()
-    comment_writer = scrapy.Field()
-    comment_article = scrapy.Field()
-    comment_date = scrapy.Field()
+
+    def get_columns(self):
+        return self.columns

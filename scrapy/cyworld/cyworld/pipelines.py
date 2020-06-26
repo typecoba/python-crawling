@@ -6,17 +6,28 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import scrapy
-import os
-from scrapy.pipelines.images import ImagesPipeline
-from scrapy.pipelines.files import FilesPipeline
+import csv
 from scrapy.exceptions import DropItem
-from urllib.parse import urlparse
+from scrapy.pipelines.files import FilesPipeline
+from scrapy.pipelines.images import ImagesPipeline
+from cyworld.items import CyclubPostItem
 
 # IMAGES_URLS_FIELD = 'image_urls'
 # IMAGES_RESULT_FIELD = 'images'
 
 class CyworldPipeline(object):
+    def __init__(self):
+        # 생성자함수에 csv 모듈 writer 사용 csv파일 컨트롤
+        self.csvwriter = csv.writer(open('./data/cyclub.csv','wt'))
+        # 첫행에 들어갈 컬럼순서
+        self.columns = CyclubPostItem().get_columns()
+        self.csvwriter.writerow(self.columns)
+
     def process_item(self, item, spider):
+        row = []
+        for column in self.columns: # 컬럼순서대로 입력해 재출력
+            row.append(item[column])
+        self.csvwriter.writerow(row)
         return item
 
 class ImagePipeline(ImagesPipeline):
@@ -29,7 +40,8 @@ class ImagePipeline(ImagesPipeline):
             yield request
 
     def file_path(self, request, response=None, info=None):
-        return '/{post_no}.{file_no}.{name}'.format(post_no=request.meta['post_no'], file_no=request.meta['file_no'] ,name=request.meta['image_name'])
+        # return '/{post_no}.{file_no}.{name}'.format(post_no=request.meta['post_no'], file_no=request.meta['file_no'] ,name=request.meta['image_name'])
+        return '/{name}'.format(name=request.meta['image_name'])
 
     def item_complete(self, results, item, info):
         image_paths = [x['path'] for ok, x in results if ok]
